@@ -18,7 +18,7 @@ public class AccountReportController {
     }
 
     @GetMapping("/account")
-    public Callable<String> getAccountDataForCustomer(@RequestParam("custId") String customerId) {
+    public String getAccountDataForCustomer(@RequestParam("custId") String customerId) {
         log.info("First thread in account api {}", Thread.currentThread());
 
         if (delayer.getDelay() > 0) {
@@ -31,7 +31,7 @@ public class AccountReportController {
         }
 
         log.info("Last thread in account api {}", Thread.currentThread());
-        return () -> "account report for customer " + customerId;
+        return "account report for customer " + customerId;
     }
 
 }

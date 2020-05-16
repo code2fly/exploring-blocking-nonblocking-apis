@@ -29,13 +29,13 @@ public class MortgageController {
         log.info("First thread in mortgage api {}", Thread.currentThread());
 
         DeferredResult<MortgageReport> output = new DeferredResult<>();
-        Callable<String> accountDataForCustomer = accountService.getAccountDataForCustomer(customerId);
+        /*Callable<String> accountDataForCustomer = accountService.getAccountDataForCustomer(customerId);
         log.info("Second thread in mortgage  api after account call {}", Thread.currentThread());
-        Callable<String> creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId);
+        Callable<String> creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId);*/
         log.info("Third thread in mortgage  api after credit api call {}", Thread.currentThread());
 
         ForkJoinPool.commonPool().submit(() ->
-                output.setResult(new MortgageReport(accountDataForCustomer.call(), creditReportForCustomer.call()))
+                output.setResult(new MortgageReport(accountService.getAccountDataForCustomer(customerId), accountService.getAccountDataForCustomer(customerId)))
         );
 
         return output;
