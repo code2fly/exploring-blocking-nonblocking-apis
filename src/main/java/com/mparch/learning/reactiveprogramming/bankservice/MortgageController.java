@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.Callable;
+
 @RestController
 public class MortgageController {
 
@@ -19,12 +21,12 @@ public class MortgageController {
     }
 
     @GetMapping("/mortgage")
-    public MortgageReport getMortgageReport(@RequestParam("custId") String customerId) {
+    public Callable<MortgageReport> getMortgageReport(@RequestParam("custId") String customerId) throws Exception {
 
-        String accountDataForCustomer = accountService.getAccountDataForCustomer(customerId);
-        String creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId);
+        String accountDataForCustomer = accountService.getAccountDataForCustomer(customerId).call();
+        String creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId).call();
 
-        return new MortgageReport(accountDataForCustomer, creditReportForCustomer);
+        return () -> new MortgageReport(accountDataForCustomer, creditReportForCustomer);
     }
 }
 
