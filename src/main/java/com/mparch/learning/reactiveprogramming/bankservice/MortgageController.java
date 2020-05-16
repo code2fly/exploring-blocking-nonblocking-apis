@@ -2,11 +2,13 @@ package com.mparch.learning.reactiveprogramming.bankservice;
 
 import com.mparch.learning.reactiveprogramming.accountService.AccountReportController;
 import com.mparch.learning.reactiveprogramming.creditService.CreditCheckReportController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 public class MortgageController {
 
     private final AccountReportController accountService;
@@ -20,9 +22,12 @@ public class MortgageController {
 
     @GetMapping("/mortgage")
     public MortgageReport getMortgageReport(@RequestParam("custId") String customerId) {
+        log.info("First thread while receiving request is :  {} ", Thread.currentThread());
 
         String accountDataForCustomer = accountService.getAccountDataForCustomer(customerId);
+        log.info("Second thread after calling ACCOUNT service receiving request is :  {} ", Thread.currentThread());
         String creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId);
+        log.info("Third thread after calling CREDIT CHECK service receiving request is :  {} ", Thread.currentThread());
 
         return new MortgageReport(accountDataForCustomer, creditReportForCustomer);
     }
