@@ -2,12 +2,16 @@ package com.mparch.learning.reactiveprogramming.bankservice;
 
 import com.mparch.learning.reactiveprogramming.accountService.AccountReportController;
 import com.mparch.learning.reactiveprogramming.creditService.CreditCheckReportController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ForkJoinPool;
 
+@Slf4j
 @RestController
 public class MortgageController {
 
@@ -21,12 +25,20 @@ public class MortgageController {
     }
 
     @GetMapping("/mortgage")
-    public Callable<MortgageReport> getMortgageReport(@RequestParam("custId") String customerId) throws Exception {
+    public DeferredResult<MortgageReport> getMortgageReport(@RequestParam("custId") String customerId) throws Exception {
+        log.info("First thread in mortgage api {}", Thread.currentThread());
 
-        String accountDataForCustomer = accountService.getAccountDataForCustomer(customerId).call();
-        String creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId).call();
+        DeferredResult<MortgageReport> output = new DeferredResult<>();
+        Callable<String> accountDataForCustomer = accountService.getAccountDataForCustomer(customerId);
+        log.info("Second thread in mortgage  api after account call {}", Thread.currentThread());
+        Callable<String> creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId);
+        log.info("Third thread in mortgage  api after credit api call {}", Thread.currentThread());
 
-        return () -> new MortgageReport(accountDataForCustomer, creditReportForCustomer);
+        ForkJoinPool.commonPool().submit(() ->
+                output.setResult(new MortgageReport(accountDataForCustomer.call(), creditReportForCustomer.call()))
+        );
+
+        return output;
     }
 }
 

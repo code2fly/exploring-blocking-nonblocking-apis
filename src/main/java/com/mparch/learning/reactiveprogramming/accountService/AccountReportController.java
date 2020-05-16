@@ -1,11 +1,13 @@
 package com.mparch.learning.reactiveprogramming.accountService;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.Callable;
 
+@Slf4j
 @RestController
 public class AccountReportController {
 
@@ -17,6 +19,8 @@ public class AccountReportController {
 
     @GetMapping("/account")
     public Callable<String> getAccountDataForCustomer(@RequestParam("custId") String customerId) {
+        log.info("First thread in account api {}", Thread.currentThread());
+
         if (delayer.getDelay() > 0) {
             try {
                 System.out.println("introducing custom delay while getting account data ");
@@ -25,6 +29,8 @@ public class AccountReportController {
                 System.out.println("error while introducing custom delay");
             }
         }
+
+        log.info("Last thread in account api {}", Thread.currentThread());
         return () -> "account report for customer " + customerId;
     }
 
