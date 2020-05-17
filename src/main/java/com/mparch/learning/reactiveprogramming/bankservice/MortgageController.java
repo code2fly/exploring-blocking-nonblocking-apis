@@ -31,14 +31,14 @@ public class MortgageController {
     public MortgageReport getMortgageReport(@RequestParam("custId") String customerId) throws ExecutionException, InterruptedException {
         log.info("First thread while receiving request is :  {} ", Thread.currentThread());
 
-        String accountDataForCustomer = accountService.getAccountDataForCustomer(customerId);
+//        String accountDataForCustomer = accountService.getAccountDataForCustomer(customerId);
 //        Future<String> accountDataFuture = executorService.submit(() -> accountService.getAccountDataForCustomer(customerId));
         log.info("Second thread after calling ACCOUNT service receiving request is :  {} ", Thread.currentThread());
         String creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId);
 //        Future<String> creditReportFuture = executorService.submit(() -> creditCheckService.getCreditReportForCustomer(customerId));
         log.info("Third thread after calling CREDIT CHECK service receiving request is :  {} ", Thread.currentThread());
 
-        return new MortgageReport(accountDataForCustomer, creditReportForCustomer);
+        return new MortgageReport(null, creditReportForCustomer);
 //        return  new MortgageReport(accountDataFuture.get(), creditReportFuture.get());
     }
 
