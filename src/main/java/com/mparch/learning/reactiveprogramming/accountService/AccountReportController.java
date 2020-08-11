@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -18,7 +19,7 @@ public class AccountReportController {
     }
 
     @GetMapping("/account")
-    public String getAccountDataForCustomer(@RequestParam("custId") String customerId) {
+    public CompletableFuture<String> getAccountDataForCustomer(@RequestParam("custId") String customerId) {
         log.info("First thread in account api {}", Thread.currentThread());
 
         if (delayer.getDelay() > 0) {
@@ -31,7 +32,7 @@ public class AccountReportController {
         }
 
         log.info("Last thread in account api {}", Thread.currentThread());
-        return "account report for customer " + customerId;
+        return CompletableFuture.completedFuture("account report for customer " + customerId);
     }
 
 }

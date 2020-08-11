@@ -8,37 +8,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.*;
 
 @Slf4j
 @RestController
 public class MortgageController {
 
-    private final AccountReportController accountService;
 
     private final CreditCheckReportController creditCheckService;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(150);
 
-    public MortgageController(AccountReportController accountService, CreditCheckReportController creditCheckService) {
-        this.accountService = accountService;
+
+    public MortgageController( CreditCheckReportController creditCheckService) {
         this.creditCheckService = creditCheckService;
     }
 
     @GetMapping("/mortgage")
-    public DeferredResult<MortgageReport> getMortgageReport(@RequestParam("custId") String customerId) throws Exception {
+    public CompletableFuture<MortgageReport> getMortgageReport(@RequestParam("custId") String customerId) throws Exception {
         log.info("First thread in mortgage api {}", Thread.currentThread());
 
-        DeferredResult<MortgageReport> output = new DeferredResult<>();
+//        DeferredResult<MortgageReport> output = new DeferredResult<>();
         /*Callable<String> accountDataForCustomer = accountService.getAccountDataForCustomer(customerId);
         log.info("Second thread in mortgage  api after account call {}", Thread.currentThread());
         Callable<String> creditReportForCustomer = creditCheckService.getCreditReportForCustomer(customerId);*/
         log.info("Third thread in mortgage  api after credit api call {}", Thread.currentThread());
 
-        ForkJoinPool.commonPool().submit(() ->
-                output.setResult(new MortgageReport(accountService.getAccountDataForCustomer(customerId), accountService.getAccountDataForCustomer(customerId)))
-        );
+        return    CompletableFuture.supplyAsync(() -> {
+            return creditCheckService.getCreditReportForCustomer(customerId);
+        }, executorService)
+                .thenApply(creditResp -> new MortgageReport(null, creditResp));
 
-        return output;
     }
 }
 
