@@ -1,6 +1,8 @@
 package com.mparch.learning.reactiveprogramming.accountService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +18,7 @@ public class AccountReportController {
     }
 
     @GetMapping("/account")
-    public String getAccountDataForCustomer(@RequestParam("custId") String customerId) {
+    public ResponseEntity<String> getAccountDataForCustomer(@RequestParam("custId") String customerId) {
         log.info("First thread while receiving request in AccountService is :  {} ", Thread.currentThread());
         if (delayer.getDelay() > 0) {
             try {
@@ -28,7 +30,7 @@ public class AccountReportController {
         }
 
         log.info("Thread used just before return of Account service request : {}", Thread.currentThread());
-        return "account report for customer " + customerId;
+        return new ResponseEntity<>("account report for customer " + customerId, HttpStatus.OK);
     }
 
 }

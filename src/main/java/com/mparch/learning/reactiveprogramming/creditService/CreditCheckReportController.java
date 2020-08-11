@@ -13,7 +13,7 @@ public class CreditCheckReportController {
         this.delayer = delayer;
     }
 
-    @GetMapping("/creditreport")
+    @GetMapping("/dps")
     public String getCreditReportForCustomer(@RequestParam("custid") String customerId) {
         if (delayer.getDelay() > 0) {
             try {
